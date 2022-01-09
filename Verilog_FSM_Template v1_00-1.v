@@ -4,36 +4,24 @@
 // Engineer:  James Ratner
 // 
 // Create Date: 07/07/2018 08:05:03 AM
-// Design Name: 
-// Module Name: fsm_template
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
 // Description: Generic FSM model with both Mealy & Moore outputs. 
 //    Note: data widths of state variables are not specified 
-//
-// Dependencies: 
-// 
-// Revision:
-// Revision 1.00 - File Created (07-07-2018) 
-// Additional Comments:
-// 
 //////////////////////////////////////////////////////////////////////////////////
 
-module fsm_template(reset_n, x_in, clk, mealy, moore); 
-    input  reset_n, x_in, clk; 
-    output reg mealy, moore;
+module fsm_template(reset_n, x_in, clk, go_btn, start_output, up, done, prime, rco, we, mealy, moore); 
+    input  reset_n, x_in, clk, go_btn, done, prime, rco, we; 
+    output reg mealy, moore, start_output, up;
      
     //- next state & present state variables
-    reg [1:0] NS, PS; 
+    reg [2:0] NS, PS; 
     //- bit-level state representations
-    parameter [1:0] st_A=2'b00, st_B=2'b01, st_C=2'b11; 
+    parameter [2:0] w8=3'b000, start=3'b001, look=3'b010, store=3'b011, read=3'b100, final=3'b101; 
     
 
     //- model the state registers
     always @ (negedge reset_n, posedge clk)
        if (reset_n == 0) 
-          PS <= st_A; 
+          PS <= w8; 
        else
           PS <= NS; 
     
@@ -43,44 +31,44 @@ module fsm_template(reset_n, x_in, clk, mealy, moore);
     begin
        mealy = 0; moore = 0; // assign all outputs
        case(PS)
-          st_A:
+          w8:
           begin
              moore = 1;        
              if (x_in == 1)
              begin
                 mealy = 0;   
-                NS = st_A; 
+                NS = w8; 
              end  
              else
              begin
                 mealy = 1; 
-                NS = st_B; 
+                NS = start; 
              end  
           end
           
-          st_B:
+          start:
              begin
                 moore = 0;
                 mealy = 1;
-                NS = st_C;
+                NS = look;
              end   
              
-          st_C:
+          look:
              begin
                  moore = 1; 
                  if (x_in == 1)
                  begin
                     mealy = 1; 
-                    NS = st_B; 
+                    NS = start; 
                  end  
                  else
                  begin
                     mealy = 0; 
-                    NS = st_A; 
+                    NS = w8; 
                  end  
              end
              
-          default: NS = st_A; 
+          default: NS = w8; 
             
           endcase
       end              
