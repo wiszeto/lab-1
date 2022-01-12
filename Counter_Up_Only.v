@@ -35,7 +35,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module cntr_up_clr_nb #(parameter n=8) (
+module Counter_Up_Only #(parameter n=8) (
     input wire clk, 
 	input wire clr, 
 	input wire up, 

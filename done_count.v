@@ -35,7 +35,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module prime_count #(parameter n=8) (
+module done_count #(parameter n=8) (
     input wire clk, 
 	input wire clr, 
 	input wire d_up, 

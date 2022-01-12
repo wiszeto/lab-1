@@ -10,7 +10,7 @@
 
 module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up); 
     input  clk, go_btn, done, prime, rco; 
-    output start_output, up, we, clr, p_up;
+    output logic start_output, up, we, clr, p_up;
      
     //- next state & present state variables
     reg [2:0] NS, PS; 
@@ -19,8 +19,8 @@ module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up);
     
 
     //- model the state registers
-    always @ (negedge reset_n, posedge clk)
-       if (reset_n == 0) 
+    always @ (clr, posedge clk)
+       if (clr == 0) 
           PS <= w8; 
        else
           PS <= NS; 
@@ -49,8 +49,8 @@ module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up);
              begin
                 start_output = 0;
                 if (~done) NS = look;
-                else if (done == 1 && prime == 0) NS = store;
-                else if (done == 1 && prime == 1) NS = read;
+                else if (done == 1 && prime == 1) NS = store;
+                else if (done == 1 && prime == 0) NS = read;
              end
 
           store: //--------------------------------------------------------------------------------------------------state 4(store)
