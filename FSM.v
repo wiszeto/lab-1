@@ -8,9 +8,17 @@
 //    Note: data widths of state variables are not specified 
 //////////////////////////////////////////////////////////////////////////////////
 
-module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up); 
-    input  clk, go_btn, done, prime, rco; 
-    output logic start_output, up, we, clr, p_up;
+module FSM( 
+    input clk,
+    input go_btn, 
+    input done, 
+    input prime, 
+    input rco, 
+    output reg start_output, 
+    output reg up, 
+    output reg we, 
+    output reg p_up
+    );
      
     //- next state & present state variables
     reg [2:0] NS, PS; 
@@ -19,20 +27,15 @@ module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up);
     
 
     //- model the state registers
-    always @ (clr, posedge clk)
-       if (clr == 0) 
-          PS <= w8; 
-       else
+    always @ (posedge clk)
           PS <= NS; 
-    
-    
     //- model the next-state and output decoders
-    always @ (PS) // <------------------------------------------change this.
+    always @ (*) 
     begin
-       start_output = 0; up = 0; we = 0; clr = 0; p_up = 0;// assign all outputs
+       start_output = 0; up = 0; we = 0; p_up = 0;// assign all outputs
        case(PS)
           w8: //--------------------------------------------------------------------------------------------------state 1(w8)
-          begin     
+          begin    
              up = 0; 
              if (go_btn == 1) NS = start; // if go is pressed, move to start state
              else NS = w8; // else stay in same state
@@ -70,7 +73,6 @@ module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up);
 
           final: //--------------------------------------------------------------------------------------------------state 6(final)
              begin
-                clr = 1;
              end   
 
           default: NS = w8; 
@@ -78,5 +80,3 @@ module FSM(clk, clr, go_btn, start_output, up, done, prime, rco, we, p_up);
           endcase
       end              
 endmodule
-
-
