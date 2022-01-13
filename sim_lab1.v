@@ -46,7 +46,10 @@ module sim_lab1(
     clr = 1;
     #60
     clr = 0;
-    
+    #5
+    BTN = 1;
+    #20
+    BTN = 0;
     
     end
 endmodule
