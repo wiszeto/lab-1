@@ -36,7 +36,7 @@ module FSM(
     //- next state & present state variables
     reg [2:0] NS, PS; 
     //- bit-level state representations
-    parameter [2:0] w8=3'b000, start=3'b001, look=3'b010, store=3'b011, read=3'b100, final=3'b101; 
+    parameter [2:0] w8=3'b000, starta=3'b001, looka=3'b010, storea=3'b011, reada=3'b100, finala=3'b101; 
     
 
     //- model the state registers
@@ -55,42 +55,43 @@ module FSM(
           w8: //--------------------------------------------------------------------------------------------------state 1(w8)
           begin    
              up = 0; 
-             if (go_btn == 1) NS = start; // if go is pressed, move to start state
+             if (go_btn == 1) NS = starta; // if go is pressed, move to start state
              else NS = w8; // else stay in same state
           end
           
-          start: //--------------------------------------------------------------------------------------------------state 2(start)
+          starta: //--------------------------------------------------------------------------------------------------state 2(start)
              begin
                 up = 1;
                 start_output = 1;
-                NS = look;
+                NS = looka;
              end   
              
-          look: //--------------------------------------------------------------------------------------------------state 3(look)
+          looka: //--------------------------------------------------------------------------------------------------state 3(look)
              begin
                 start_output = 0;
-                if (~done) NS = look;
-                else if (done == 1 && prime == 1) NS = store;
-                else if (done == 1 && prime == 0) NS = read;
+                if (~done) NS = looka;
+                else if (done == 1 && prime == 1) NS = storea;
+                else if (done == 1 && prime == 0) NS = reada;
              end
 
-          store: //--------------------------------------------------------------------------------------------------state 4(store)
+          storea: //--------------------------------------------------------------------------------------------------state 4(store)
              begin
                 p_up = 1;
                 we = 1;
-                if (rco) NS = final;
-                else if (~rco) NS = start;
+                if (rco) NS = finala;
+                else if (~rco) NS = starta;
              end  
 
-          read: //--------------------------------------------------------------------------------------------------state 5(read)
+          reada: //--------------------------------------------------------------------------------------------------state 5(read)
              begin
                 we = 0;
-                if (rco) NS = final;
-                else if (~rco) NS = start;
+                if (rco) NS = finala;
+                else if (~rco) NS = starta;
              end   
 
-          final: //--------------------------------------------------------------------------------------------------state 6(final)
+          finala: //--------------------------------------------------------------------------------------------------state 6(final)
              begin
+             
              end  
              
           default: NS = w8; 
