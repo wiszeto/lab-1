@@ -51,7 +51,7 @@ module prime_count #(parameter n=8) (
            count <= 0;
         else if (ld == 1)   // load new value
            count <= D; 
-        else if (up == 1)   // count up (increment)
+        else if (p_up == 1)   // count up (increment)
            count <= count + 1;  
     end 
        
