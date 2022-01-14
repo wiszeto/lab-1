@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module FSM(
-    input reset_n, //clr
+    output reg reset_n, //clr
     input go_btn, 
     input clk, 
     input done,
@@ -41,27 +41,29 @@ module FSM(
     
     
     //- model the state registers
-    always @ (negedge reset_n, posedge clk)
-       if (reset_n == 1) 
-          PS <= w8; 
-       else
+    always @ ( posedge clk)
+//       if (reset_n == 1) 
+//          PS <= w8; 
+//       else
           PS <= NS; 
     
     
     //- model the next-state and output decoders
     always @ (*)
     begin
-       start_output = 0; up = 0; we = 0; p_up = 0; d_up = 0;// assign all outputs
+       start_output = 0; up = 0; we = 0; p_up = 0; d_up = 0; reset_n = 0;// assign all outputs
        case(PS)
           w8: //--------------------------------------------------------------------------------------------------state 0(w8)
           begin
              up = 0;
+             reset_n = 1;
              if (go_btn == 1) NS = counta; // if go is pressed, move to start state
              else NS = w8; // else stay in same state
           end
           
           counta: //--------------------------------------------------------------------------------------------------state 1(start)
              begin
+             reset_n = 0;
              p_up = 0;
              we = 0;
              start_output = 0;
@@ -107,5 +109,3 @@ module FSM(
           endcase
       end              
 endmodule
-
-
