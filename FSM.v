@@ -87,15 +87,18 @@ module FSM(
              NS = storea;
              end
              else if (done == 1 && prime == 0) NS = counta;
+             else if (rco) NS = finala;
              else NS = checka;
              end
           storea: //--------------------------------------------------------------------------------------------------state 3(store)
              begin
              we = 1;
              NS = counta;
+             if (rco) NS = finala;
              end 
           finala: //--------------------------------------------------------------------------------------------------state 4(final)
              begin
+             
              d_up =1;
              end 
           
