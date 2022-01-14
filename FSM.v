@@ -24,21 +24,22 @@ module FSM(
     input reset_n, //clr
     input go_btn, 
     input clk, 
-    input prime,
     input done,
     input rco,
+    input prime,
     output reg start_output,
     output reg up,
     output reg we,
-    output reg p_up
+    output reg p_up,
+    output reg d_up
     ); 
      
     //- next state & present state variables
     reg [2:0] NS, PS; 
     //- bit-level state representations
-    parameter [2:0] w8=3'b000, starta=3'b001, looka=3'b010, storea=3'b011, reada=3'b100, finala=3'b101; 
+    parameter [2:0] w8=3'b000, counta=3'b001, checka=3'b010, storea=3'b011, finala=3'b100; 
     
-
+    
     //- model the state registers
     always @ (negedge reset_n, posedge clk)
        if (reset_n == 1) 
@@ -50,50 +51,54 @@ module FSM(
     //- model the next-state and output decoders
     always @ (*)
     begin
-       start_output = 0; up = 0; we = 0; p_up = 0; // assign all outputs
+       start_output = 0; up = 0; we = 0; p_up = 0; d_up = 0;// assign all outputs
        case(PS)
           w8: //--------------------------------------------------------------------------------------------------state 0(w8)
-          begin    
-             up = 0; 
-             if (go_btn == 1) NS = starta; // if go is pressed, move to start state
+          begin
+             up = 0;
+             if (go_btn == 1) NS = counta; // if go is pressed, move to start state
              else NS = w8; // else stay in same state
           end
           
-          starta: //--------------------------------------------------------------------------------------------------state 1(start)
+          counta: //--------------------------------------------------------------------------------------------------state 1(start)
              begin
-                up = 1;
-                start_output = 1;
-                NS = looka;
+             p_up = 0;
+             we = 0;
+             start_output = 0;
+             if (done == 1) 
+             begin
+             up = 1;
+             end
+             start_output = 1;
+             NS = checka;
+             
+             
              end   
              
-          looka: //--------------------------------------------------------------------------------------------------state 2(look)
+          checka: //--------------------------------------------------------------------------------------------------state 2(check)
              begin
-                start_output = 0;
-                if (~done) NS = looka;
-                else if (done == 1 && prime == 1) NS = storea;
-                else if (done == 1 && prime == 0) NS = reada;
+             up = 0;
+             we = 0;
+             p_up = 0;
+             start_output = 0;
+             if (done == 1) 
+             begin
+             if (prime) p_up = 1;
+             NS = storea;
              end
-
+             else if (done == 1 && prime == 0) NS = counta;
+             else NS = checka;
+             end
           storea: //--------------------------------------------------------------------------------------------------state 3(store)
              begin
-                p_up = 1;
-                we = 1;
-                if (rco) NS = finala;
-                else if (~rco) NS = starta;
-             end  
-
-          reada: //--------------------------------------------------------------------------------------------------state 4(read)
+             we = 1;
+             NS = counta;
+             end 
+          finala: //--------------------------------------------------------------------------------------------------state 4(final)
              begin
-                we = 0;
-                if (rco) NS = finala;
-                else if (~rco) NS = starta;
-             end   
-
-          finala: //--------------------------------------------------------------------------------------------------state 5(final)
-             begin
-             
-             end  
-             
+             d_up =1;
+             end 
+          
           default: NS = w8; 
             
           endcase
