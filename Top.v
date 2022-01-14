@@ -34,8 +34,8 @@ module Top(
   Counter_Up_Only #(4) cntr1(.clk(slw_clk), .clr(clr), .up(p_up), .ld(1'b0), .D(1'b0), .count(p_count));
   Counter_Up_Only #(4) cntr2(.clk(slw_clk), .clr(EQ), .up(d_up), .ld(1'b0), .D(1'b0), .count(d_count));
   ram_single_port #(.n(4),.m(8)) my_ram(.data_in(ROM_data_out), .addr(p_count), .we(we), .clk(slw_clk), .data_out(dout)); 
-  mux_2t1_nb #(4) mux1(.D0(p_count[3:0]), .D1(d_count[3:0]), .SEL(RCO), .D_OUT(mux_addr[3:0]));
-  mux_2t1_nb #(8) mux_data_in(.D0(ROM_data_out), .D1(dout[7:0]), .SEL(RCO), .D_OUT(mux_data[7:0]));
+  mux_2t1_nb #(4) mux1(.D0(p_count[3:0]), .D1(d_count[3:0]), .SEL(rco), .D_OUT(mux_addr[3:0]));
+  mux_2t1_nb #(8) mux_data_in(.D0(ROM_data_out), .D1(dout[7:0]), .SEL(rco), .D_OUT(mux_data[7:0]));
   Comparator #(4) compar(.a(p_count[3:0]), .b(d_count[3:0]), .eq(EQ));
-  univ_sseg display(.cnt1({6'b000000, dout[7:0]}), .cnt2({3'b000, count[3:0]}), .valid(1'b1), .dp_en(1'b0), .mod_sel(2'b01), .sign(1'b0), .clk(slw_clk), .ssegs(seg[7:0]), .disp_en(an[3:0]));
+  univ_sseg display(.cnt1({10'b0000000000, mux_data[7:0]}), .cnt2({3'b000, mux_addr[3:0]}), .valid(1'b1), .dp_en(1'b0), .mod_sel(2'b01), .sign(1'b0), .clk(clk), .ssegs(seg[7:0]), .disp_en(an[3:0]));
 endmodule
