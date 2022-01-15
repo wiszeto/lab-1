@@ -21,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module FSM(
-    output reg reset_n, //clr
+    input reset_n, //clr
     input go_btn, 
     input clk, 
     input done,
@@ -31,13 +31,15 @@ module FSM(
     output reg up,
     output reg we,
     output reg p_up,
-    output reg d_up
+    output reg d_up,
+    output reg EQ,
+    output reg sel
     ); 
      
     //- next state & present state variables
     reg [2:0] NS, PS; 
     //- bit-level state representations
-    parameter [2:0] w8=3'b000, counta=3'b001, checka=3'b010, storea=3'b011, finala=3'b100; 
+    parameter [2:0] w8=3'b000, counta=3'b001, checka=3'b010, storea=3'b011, not_storea=3'b100, finala=3'b101; 
     
     
     //- model the state registers
@@ -51,58 +53,68 @@ module FSM(
     //- model the next-state and output decoders
     always @ (*)
     begin
-       start_output = 0; up = 0; we = 0; p_up = 0; d_up = 0; reset_n = 0;// assign all outputs
+       start_output = 0; up = 0; we = 0; p_up = 0; d_up = 0; EQ = 0; sel = 0;// assign all outputs
        case(PS)
           w8: //--------------------------------------------------------------------------------------------------state 0(w8)
           begin
+             sel = 0;
+             EQ = 0;
              up = 0;
-             reset_n = 1;
+             we = 0;
+             p_up = 0;
+             EQ = 1;
              if (go_btn == 1) NS = counta; // if go is pressed, move to start state
              else NS = w8; // else stay in same state
           end
           
           counta: //--------------------------------------------------------------------------------------------------state 1(start)
              begin
-             reset_n = 0;
+             sel = 0;
              p_up = 0;
              we = 0;
-             start_output = 0;
-             if (done == 1) 
-             begin
-             up = 1;
-             end
-             start_output = 1;
-             NS = checka;
-             
-             
+             start_output = 1; 
+             NS = checka;                
              end   
              
           checka: //--------------------------------------------------------------------------------------------------state 2(check)
              begin
+             sel = 0;
              up = 0;
              we = 0;
              p_up = 0;
              start_output = 0;
-             if (done == 1) 
-             begin
-             if (prime) p_up = 1;
-             NS = storea;
+             if (done == 0)  NS = checka; 
+             else if (prime == 1) NS = storea;
+             else  NS = not_storea;
              end
-             else if (done == 1 && prime == 0) NS = counta;
-             else if (rco) NS = finala;
-             else NS = checka;
-             end
+             
           storea: //--------------------------------------------------------------------------------------------------state 3(store)
              begin
+             sel = 0;
+             up = 1;
              we = 1;
-             NS = counta;
+             p_up = 1;
              if (rco) NS = finala;
+             else NS = counta;
+             end
+             
+          not_storea: //--------------------------------------------------------------------------------------------------state 3(store)
+             begin
+             sel = 0;
+             we = 0;
+             p_up = 0;
+             up = 1;
+             if (rco) NS = finala;
+             else NS = counta;
              end 
+             
           finala: //--------------------------------------------------------------------------------------------------state 4(final)
              begin
-             
              d_up =1;
-             end 
+             sel = 1;
+             if (go_btn == 0) NS = finala;
+             else NS = counta;
+             end
           
           default: NS = w8; 
             
