@@ -59,15 +59,13 @@ module sim_lab1(
     initial
     begin
     clr = 0;
+    BTN = 0;
     #20
     clr = 1;
+    BTN = 1;
     #60
     clr = 0;
-    #5
-    BTN = 1;
-    #20
     BTN = 0;
-    
     end
 endmodule
 
