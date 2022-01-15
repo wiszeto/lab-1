@@ -31,14 +31,14 @@ module Top(
   assign EQ = EQ1 | EQ2;
   
   //Slowing down the clk to 2Hz clk
-  clk_2n_div_test #(.n(25)) MY_DIV (.clockin(clk), .fclk_only(1'b0), .clockout(slw_clk));  // on = in sim, off = board -- for fclk_only
+  clk_2n_div_test #(.n(24)) MY_DIV (.clockin(clk), .fclk_only(1'b0), .clockout(slw_clk));  // on = in sim, off = board -- for fclk_only
   
   //Counter to read the ROM 
   Counter_Up_Only #(4) rom_cntr(.clk(slw_clk), .clr(clr), .up(up), .ld(1'b0), .D(1'b0), .count(count), .rco(rco));
   ROM_16x8 ROM(.addr(count), .data(ROM_data_out[7:0]), .rd_en(1'b1));
   
   //Checking if the data from the ROM is prime
-  prime_num_check check(.clk(slw_clk), .test(1'b0), .start(start), .num({2'b00, ROM_data_out}), .DONE(done), .PRIME(prime));
+  prime_num_check check(.clk(clk), .test(1'b0), .start(start), .num({2'b00, ROM_data_out}), .DONE(done), .PRIME(prime));
   
   FSM fsm(.reset_n(clr), .go_btn(BTN), .clk(slw_clk), .done(done), .rco(rco), .start_output(start), .up(up), .we(we), .p_up(p_up), .prime(prime), .d_up(d_up), .EQ(EQ2), .sel(sel));
   
